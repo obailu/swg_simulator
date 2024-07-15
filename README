@@ -1,1 +1,57 @@
+#Saltwater Chlorine Generator Simulator
+##Overview
+This project simulates a saltwater chlorine generator using the Zybo Z7-20 FPGA board. The system includes an OLED display, seven-segment display, rotary encoder, and multiple buttons and LEDs to provide a comprehensive user interface for simulating the control and monitoring of a saltwater chlorine generator.
 
+##Components
+Zybo Z7-20 FPGA Board
+Pmod OLEDrgb (JE Connector)
+Pmod SSD: Seven-segment Display (JD and JC Connectors)
+Pmod ENC Rotary Encoder (JB Connector)
+RGB LED for water flow indication (LD5)
+RGB LED for system status (LD6)
+Button to add salt (Y16)
+Switch for user input mode (D18)
+Button to increase temperature (M15)
+Button to increase salt PPM (M14)
+Button to control pool pump (K19)
+
+##Functionality
+System Start-Up:
+
+User inputs the pool size (in thousands of gallons).
+Set initial values for salt (in ppm) and temperature.
+User Input Mode:
+
+Rotary Encoder: Navigate menus and change parameters.
+Switch D18: Toggle between user input mode and normal mode.
+Button M14: Change salt PPM.
+Button M15: Change temperature.
+Running Mode:
+
+LD5: Green when water flow is on, Red when off.
+LD6: Green for normal, Yellow for warning, Red for error, Flashing when remeasuring.
+Button Y16: Adds 20 lbs of salt, triggers remeasurement.
+Button K19: Turns the pool pump on or off.
+Display:
+
+Pmod SSD: Show current status or user inputs.
+Pmod OLEDrgb: Show detailed status outputs and menus.
+
+##VHDL Code Structure
+Entity Declaration:
+Defines the inputs and outputs for the FPGA board.
+Architecture Body:
+Includes the initialization for Pmods, LEDs, buttons, and switches.
+Implements the user input handling for initial settings.
+## Initialization Sequence
+Pmod OLEDrgb:
+
+Commands to turn off the display, set contrast, set segment re-map, set display start line, set normal display, and turn on the display.
+Pmod SSD:
+
+Commands to clear the display initially.
+Pmod ENC:
+
+Placeholder for the actual encoder setup code.
+## XDC Constraint File
+The XDC file maps the physical pins to the corresponding FPGA I/O ports.
