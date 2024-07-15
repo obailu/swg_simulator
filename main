@@ -30,6 +30,11 @@ architecture Behavioral of saltwater_chlorine_generator is
     signal temperature : integer := 0; -- Water temperature
     signal water_flow_on : STD_LOGIC := '0'; -- Water flow status
     signal system_status : STD_LOGIC_VECTOR (2 downto 0) := "000"; -- System status (green initially)
+
+    -- Signals for Pmod interfaces
+    signal oled_init_done : STD_LOGIC := '0'; -- OLED initialization status
+    signal ssd_init_done : STD_LOGIC := '0'; -- SSD initialization status
+    signal enc_init_done : STD_LOGIC := '0'; -- Encoder initialization status
 begin
 
     -- Initialization Process
@@ -41,9 +46,33 @@ begin
             temperature <= 0;
             water_flow_on <= '0';
             system_status <= "000"; -- Green initially
+            oled_init_done <= '0';
+            ssd_init_done <= '0';
+            enc_init_done <= '0';
         elsif rising_edge(clk) then
             -- Initialization code for Pmods, LEDs, and other peripherals
-            -- Placeholder for actual initialization
+
+            -- Initialize Pmod OLEDrgb
+            if oled_init_done = '0' then
+                -- Placeholder for actual OLED initialization sequence
+                oled_init_done <= '1';
+            end if;
+
+            -- Initialize Pmod SSD
+            if ssd_init_done = '0' then
+                -- Placeholder for actual SSD initialization sequence
+                ssd_init_done <= '1';
+            end if;
+
+            -- Initialize Pmod ENC
+            if enc_init_done = '0' then
+                -- Placeholder for actual Encoder initialization sequence
+                enc_init_done <= '1';
+            end if;
+
+            -- Initialize LEDs
+            led_flow_status <= "000"; -- Green initially
+            led_system_status <= "000"; -- Green initially
         end if;
     end process;
 
