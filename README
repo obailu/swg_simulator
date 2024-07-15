@@ -1,5 +1,5 @@
-#Saltwater Chlorine Generator Simulator
-##Overview
+# Saltwater Chlorine Generator Simulator
+## Overview
 This project simulates a saltwater chlorine generator using the Zybo Z7-20 FPGA board. The system includes an OLED display, seven-segment display, rotary encoder, and multiple buttons and LEDs to provide a comprehensive user interface for simulating the control and monitoring of a saltwater chlorine generator.
 
 ##Components
