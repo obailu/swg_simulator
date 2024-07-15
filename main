@@ -35,6 +35,14 @@ architecture Behavioral of saltwater_chlorine_generator is
     signal oled_init_done : STD_LOGIC := '0'; -- OLED initialization status
     signal ssd_init_done : STD_LOGIC := '0'; -- SSD initialization status
     signal enc_init_done : STD_LOGIC := '0'; -- Encoder initialization status
+
+    -- Signals for OLED commands and data
+    signal oled_command : STD_LOGIC_VECTOR(7 downto 0);
+    signal oled_data_out : STD_LOGIC_VECTOR(23 downto 0);
+
+    -- Signal for SSD display segments
+    signal ssd_segments : STD_LOGIC_VECTOR (7 downto 0);
+
 begin
 
     -- Initialization Process
@@ -54,20 +62,43 @@ begin
 
             -- Initialize Pmod OLEDrgb
             if oled_init_done = '0' then
-                -- Placeholder for actual OLED initialization sequence
-                oled_init_done <= '1';
+                -- Send initialization commands to OLED display
+                oled_command <= x"AE"; -- Set display OFF
+                wait for 10 ns;
+
+                oled_command <= x"81"; -- Set contrast control
+                oled_data_out <= x"7F"; -- Example contrast value
+                wait for 10 ns;
+
+                oled_command <= x"A0"; -- Set segment re-map
+                wait for 10 ns;
+
+                oled_command <= x"A1"; -- Set display start line
+                wait for 10 ns;
+
+                oled_command <= x"A6"; -- Set normal display
+                wait for 10 ns;
+
+                oled_command <= x"AF"; -- Set display ON
+                wait for 10 ns;
+
+                oled_init_done <= '1'; -- Mark OLED initialization as done
             end if;
 
             -- Initialize Pmod SSD
             if ssd_init_done = '0' then
-                -- Placeholder for actual SSD initialization sequence
-                ssd_init_done <= '1';
+                -- Clear the SSD display
+                ssd_segments <= "00000000"; -- Clear display segments
+                wait for 10 ns;
+
+                ssd_init_done <= '1'; -- Mark SSD initialization as done
             end if;
 
             -- Initialize Pmod ENC
             if enc_init_done = '0' then
-                -- Placeholder for actual Encoder initialization sequence
-                enc_init_done <= '1';
+                -- Placeholder for actual encoder setup code
+                -- Initialize rotary encoder input processing
+                enc_init_done <= '1'; -- Mark encoder initialization as done
             end if;
 
             -- Initialize LEDs
