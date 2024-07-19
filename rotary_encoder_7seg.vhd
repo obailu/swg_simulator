@@ -23,36 +23,48 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
-
+use IEEE.NUMERIC_STD.ALL;
 
 entity periph_test is
-    Port ( rot_A : in STD_LOGIC;
-           rot_B : in STD_LOGIC;
-           clk : in STD_LOGIC;
-           ssd_display_01 : out STD_LOGIC_VECTOR (6 downto 0)
-           ssd_display_10 :  out STD_LOGIC_VECTOR (6 downto 0));
+    Port (  rot_A : in STD_LOGIC;
+            rot_B : in STD_LOGIC;
+            clk : in STD_LOGIC;
+            value : in integer range 0 to 99;  -- Value to be displayed (0-99)
+            ssd_display : out std_logic_vector(6 downto 0);  -- 7 segment display output
+            c : out std_logic  -- digit select signal);
 end periph_test;
 
 architecture Behavioral of periph_test is
-    signal count : INTEGER range 1 to 10 := 1;
+    --signal count : INTEGER range 1 to 10 := 1;
     signal last_A, last_B : STD_LOGIC := '0';
-    
+    signal tens_digit, ones_digit : integer range 0 to 9;
+    signal count : unsigned(16 - 1 downto 0); -- alternating between digits
+    signal c_temp : std_logic; -- temp var since "out" ports cannot be read in
+
 begin
     process(clk)
     begin
         if rising_edge(clk) then
             last_A <= rot_A;
             last_B <= rot_B;
+            count <= count + 1;
+            -- Convert to BCD
+            tens_digit <= TO_INTEGER(unsigned(value)) / 10;
+            ones_digit <= TO_INTEGER(unsigned(value)) mod 10;
+
+            -- Alternate digit selection
+            c_temp <= count(count'high);
+
             -- detecting the direction of rotation
             if (rot_A/= last_A) then
                 if (rot_A = '1') then
                     if (rot_B = '0') then
-                        if count < 10 then
-                            count <= count + 1;
+                        if value < 99 then
+                            value <= value + 1;
                         end if;
                     else
-                        if count > 1 then
-                            count <= count - 1;
+                        if value > 1 then
+                            value <= value - 1;
                         end if;
                     end if;
                 end if;
@@ -60,35 +72,45 @@ begin
         end if;
     end process;
     
-    process(count)
+    -- display onto 2-digit seven segment display
+    process (c_temp, tens_digit, ones_digit)
     begin
-        case (count % 10) is
-            when 0 => ssd_display_01 <= "0000110"; -- Display 0
-            when 1 => ssd_display_01 <= "1011011"; -- Display 1
-            when 2 => ssd_display_01 <= "1001111"; -- Display 2
-            when 3 => ssd_display_01 <= "1100110"; -- Display 3
-            when 4 => ssd_display_01 <= "1101101"; -- Display 4
-            when 5 => ssd_display_01 <= "1111101"; -- Display 5
-            when 6 => ssd_display_01 <= "0000111"; -- Display 6
-            when 7 => ssd_display_01 <= "1111111"; -- Display 7
-            when 8 => ssd_display_01 <= "1101111"; -- Display 8
-            when 9 => ssd_display_01 <= "1110111"; -- Display 9
-            when others => ssd_display_01 <= "0000000"; -- turn off the display
-        end case;
+        -- Select digit based on c_temp
+        case c_temp is
+            when '0' =>
+                case ones_digit is
+                when 0 => ssd_display <= "0111111";
+                when 1 => ssd_display <= "0000110";
+                when 2 => ssd_display <= "1011011";
+                when 3 => ssd_display <= "1001111";
+                when 4 => ssd_display <= "1100110";
+                when 5 => ssd_display <= "1101101";
+                when 6 => ssd_display <= "1111101";
+                when 7 => ssd_display <= "0000111";
+                when 8 => ssd_display <= "1111111";
+                when 9 => ssd_display <= "1101111";
+                when others => ssd_display <= "0000000";  -- Default case
+                end case;
 
-        -- need to set pins for 10s place in constraint
-        case ((count / 10) % 10) is
-            when 0 => ssd_display_10 <= "0000110"; -- Display 0
-            when 1 => ssd_display_10 <= "1011011"; -- Display 1
-            when 2 => ssd_display_10 <= "1001111"; -- Display 2
-            when 3 => ssd_display_10 <= "1100110"; -- Display 3
-            when 4 => ssd_display_10 <= "1101101"; -- Display 4
-            when 5 => ssd_display_10 <= "1111101"; -- Display 5
-            when 6 => ssd_display_10 <= "0000111"; -- Display 6
-            when 7 => ssd_display_10 <= "1111111"; -- Display 7
-            when 8 => ssd_display_10 <= "1101111"; -- Display 8
-            when 9 => ssd_display_10 <= "1110111"; -- Display 9
-            when others => ssd_display_10 <= "0000000"; -- turn off the display
+            when others =>
+                case tens_digit is
+                when 0 => ssd_display <= "0111111";
+                when 1 => ssd_display <= "0000110";
+                when 2 => ssd_display <= "1011011";
+                when 3 => ssd_display <= "1001111";
+                when 4 => ssd_display <= "1100110";
+                when 5 => ssd_display <= "1101101";
+                when 6 => ssd_display <= "1111101";
+                when 7 => ssd_display <= "0000111";
+                when 8 => ssd_display <= "1111111";
+                when 9 => ssd_display <= "1101111";
+                when others => ssd_display <= "0000000";  -- Default case
+
+            end case;
         end case;
     end process;
+
+    -- Assign the common cathode/anode control signal
+    c <= c_temp;
+
 end Behavioral;
