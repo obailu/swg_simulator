@@ -29,7 +29,8 @@ entity periph_test is
     Port ( rot_A : in STD_LOGIC;
            rot_B : in STD_LOGIC;
            clk : in STD_LOGIC;
-           SevenSeg : out STD_LOGIC_VECTOR (6 downto 0));
+           ssd_display_01 : out STD_LOGIC_VECTOR (6 downto 0)
+           ssd_display_10 :  out STD_LOGIC_VECTOR (6 downto 0));
 end periph_test;
 
 architecture Behavioral of periph_test is
@@ -61,18 +62,33 @@ begin
     
     process(count)
     begin
-        case count is
-            when 1 => SevenSeg <= "0000110"; -- Display 1
-            when 2 => SevenSeg <= "1011011"; -- Display 2
-            when 3 => SevenSeg <= "1001111"; -- Display 3
-            when 4 => SevenSeg <= "1100110"; -- Display 4
-            when 5 => SevenSeg <= "1101101"; -- Display 5
-            when 6 => SevenSeg <= "1111101"; -- Display 6
-            when 7 => SevenSeg <= "0000111"; -- Display 7
-            when 8 => SevenSeg <= "1111111"; -- Display 8
-            when 9 => SevenSeg <= "1101111"; -- Display 9
-            when 10 => SevenSeg <= "1110111"; -- Display 10
-            when others => SevenSeg <= "0000000"; -- turn off the display
+        case (count % 10) is
+            when 0 => ssd_display_01 <= "0000110"; -- Display 0
+            when 1 => ssd_display_01 <= "1011011"; -- Display 1
+            when 2 => ssd_display_01 <= "1001111"; -- Display 2
+            when 3 => ssd_display_01 <= "1100110"; -- Display 3
+            when 4 => ssd_display_01 <= "1101101"; -- Display 4
+            when 5 => ssd_display_01 <= "1111101"; -- Display 5
+            when 6 => ssd_display_01 <= "0000111"; -- Display 6
+            when 7 => ssd_display_01 <= "1111111"; -- Display 7
+            when 8 => ssd_display_01 <= "1101111"; -- Display 8
+            when 9 => ssd_display_01 <= "1110111"; -- Display 9
+            when others => ssd_display_01 <= "0000000"; -- turn off the display
+        end case;
+
+        -- need to set pins for 10s place in constraint
+        case ((count / 10) % 10) is
+            when 0 => ssd_display_10 <= "0000110"; -- Display 0
+            when 1 => ssd_display_10 <= "1011011"; -- Display 1
+            when 2 => ssd_display_10 <= "1001111"; -- Display 2
+            when 3 => ssd_display_10 <= "1100110"; -- Display 3
+            when 4 => ssd_display_10 <= "1101101"; -- Display 4
+            when 5 => ssd_display_10 <= "1111101"; -- Display 5
+            when 6 => ssd_display_10 <= "0000111"; -- Display 6
+            when 7 => ssd_display_10 <= "1111111"; -- Display 7
+            when 8 => ssd_display_10 <= "1101111"; -- Display 8
+            when 9 => ssd_display_10 <= "1110111"; -- Display 9
+            when others => ssd_display_10 <= "0000000"; -- turn off the display
         end case;
     end process;
 end Behavioral;
