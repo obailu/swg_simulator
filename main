@@ -40,6 +40,12 @@ architecture Behavioral of saltwater_chlorine_generator is
     signal oled_command : STD_LOGIC_VECTOR(7 downto 0);
     signal oled_data_out : STD_LOGIC_VECTOR(23 downto 0);
 
+    -- Signal for character data to OLED
+    signal oled_data_to_write : std_logic_vector(23 downto 0);
+  
+    -- Character map for OLED display (replace with actual patterns)
+    signal character_map : std_logic_vector(7 downto 0) := (others => '0');
+
     -- Signal for SSD display segments
     signal ssd_segments : STD_LOGIC_VECTOR (7 downto 0);
 
@@ -107,6 +113,24 @@ begin
         end if;
     end process;
 
+     -- Character map for OLED display (replace with actual patterns)
+    process(clk)
+    begin
+        if rising_edge(clk) then
+          character_map('0') <= x"3F";
+          character_map('1') <= x"06";
+          character_map('2') <= x"5B";
+          character_map('3') <= x"4F";
+          character_map('4') <= x"66";
+          character_map('5') <= x"6D";
+          character_map('6') <= x"7D";
+          character_map('7') <= x"07";
+          character_map('8') <= x"7F";
+          character_map('9') <= x"6F";
+          character_map('F') <= x"0A"; -- Character for "°F" (replace if using Celcius for whatevever reason)
+        end if;
+    end process;
+
     -- User Input Handling Process
     process(clk, rst)
     begin
@@ -143,5 +167,43 @@ begin
             end if;
         end if;
     end process;
+
+    -- Convert data to characters and update OLED (example for temperature)
+    process(clk, rst)
+    begin
+        if rising_edge(clk) then
+          if sw_user_mode = '0' then -- Update in normal mode
+            temp_char(3 downto 0) <= conv_integer_to_string(temperature(3 downto 0), 4); -- Assuming conv_integer_to_string converts to a 4-bit character
+            oled_data_to_write <= character_map(temp_char(3)) & character_map(temp_char(2)) & character_map(temp_char(1)) & character_map(temp_char(0)) & x"0A"; -- Add "°C" character
+          end if;
+        end if;
+    end process;
+
+    -- Write data to OLED
+    process(clk, rst)
+    begin
+        if rising_edge(clk) then
+          if sw_user_mode = '0'
+      then -- Update in normal mode
+        oled_command <= x"C0"; -- Write to display RAM
+        wait for 10 ns;
+        oled_data_out <= oled_data_to_write;
+      end if;
+    end if;
+  end process;
+
+  -- Update LEDs based on system status (placeholder)
+  process(clk, rst)
+  begin
+    if rising_edge(clk) then
+      if water_flow_on = '1' then
+        led_flow_status <= "010"; -- Green for water flow
+      else
+        led_flow_status <= "000"; -- Off if no flow
+    end if;
+  -- Update system status LED based on additional logic
+    led_system_status <= "100"; -- Example: Yellow for normal operation
+    end if;
+  end process;
 
 end Behavioral;
